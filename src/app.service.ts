@@ -10,22 +10,28 @@ export class AppService {
   }
 
   async getUserDiscordIdFromUAApi(place: string): Promise<string> {
-    const { data } = await axios.get(
-      `https://arena.dev.uttnetgroup.fr/api/admin/users?place=${place}`,
-    );
+    const token = process.env.UA_API_ADMIN_TOKEN;
 
-    return data.discordId;
+    const { data } = await axios.get(
+      `${process.env.UA_API_URI}?place=${place}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    if (data.users.length === 0) return null;
+
+    return data.users[0].discordId;
   }
 
-  async sendMessage(place: string): Promise<string> {
-    await this.client.login('SECRET');
+  async sendMessage(place: string): Promise<void> {
+    await this.client.login(process.env.DISCORD_BOT_API_TOKEN);
 
     const discordId = await this.getUserDiscordIdFromUAApi(place);
 
+    if (!discordId) return;
+
     const user = await this.client.users.fetch(discordId);
 
-    await user.send('CA MARCHE');
+    await user.send("Ta commande à la cantine de l'UA est prête !");
 
-    return '';
+    return;
   }
 }

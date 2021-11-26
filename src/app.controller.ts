@@ -19,7 +19,7 @@ export class AppController {
   async sendMessageToDiscord(
     @Param() params: SendMessageToDiscordParams,
   ): Promise<string> {
-    await this.appService.sendMessage();
+    await this.appService.sendMessage(params.place);
     return params.place;
   }
 }
