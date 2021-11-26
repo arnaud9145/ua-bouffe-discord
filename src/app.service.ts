@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Client, Intents } from 'discord.js';
+import axios from 'axios';
 @Injectable()
 export class AppService {
   private client = new Client({ intents: [Intents.FLAGS.DIRECT_MESSAGES] });
@@ -8,11 +9,22 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async sendMessage(): Promise<string> {
-    await this.client.login('SECRET');
-    const user = await this.client.users.fetch('ID');
+  async getUserDiscordIdFromUAApi(place: string): Promise<string> {
+    const { data } = await axios.get(
+      `https://arena.dev.uttnetgroup.fr/api/admin/users?place=${place}`,
+    );
 
-    await user.send('TU VEUX VOIR MA B***');
+    return data.discordId;
+  }
+
+  async sendMessage(place: string): Promise<string> {
+    await this.client.login('SECRET');
+
+    const discordId = await this.getUserDiscordIdFromUAApi(place);
+
+    const user = await this.client.users.fetch(discordId);
+
+    await user.send('CA MARCHE');
 
     return '';
   }
