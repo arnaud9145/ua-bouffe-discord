@@ -1,5 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { AppService } from './app.service';
+import {} from 'discord.js';
 
 interface SendMessageToDiscordParams {
   place: string;
@@ -15,7 +16,10 @@ export class AppController {
   }
 
   @Get('sendMessageToDiscord/:place')
-  sendMessageToDiscord(@Param() params: SendMessageToDiscordParams): string {
+  async sendMessageToDiscord(
+    @Param() params: SendMessageToDiscordParams,
+  ): Promise<string> {
+    await this.appService.sendMessage();
     return params.place;
   }
 }
