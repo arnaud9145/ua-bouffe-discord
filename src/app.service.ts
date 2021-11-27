@@ -5,10 +5,45 @@ import { SendMessageToDiscordBody } from './app.controller';
 
 @Injectable()
 export class AppService {
-  private client = new Client({ intents: [Intents.FLAGS.DIRECT_MESSAGES] });
+  private client = new Client({
+    intents: [
+      Intents.FLAGS.DIRECT_MESSAGES,
+      Intents.FLAGS.GUILD_MESSAGES,
+      Intents.FLAGS.GUILDS,
+    ],
+  });
+  private isLoggedIn = false;
+  private mutedDiscordIds = [];
 
   getHello(): string {
+    this.setupClientIfNotAlready();
     return 'Hello World!';
+  }
+
+  async setupClientIfNotAlready(): Promise<void> {
+    if (!this.isLoggedIn) {
+      this.isLoggedIn = true;
+
+      this.client.on('messageCreate', async (message) => {
+        if (message.author.bot) return;
+
+        if (message.content === '!mute') {
+          this.mutedDiscordIds.push(message.author.id);
+
+          await message.author.send(
+            `OK ! vous ne recevrez plus de messages de ma part ;) (vous pouvez me réactiver à tout moment avec "!unmute")`,
+          );
+        }
+
+        if (message.content === '!unmute') {
+          this.mutedDiscordIds.push(message.author.id);
+
+          await message.author.send(`Je suis de retour !`);
+        }
+      });
+
+      await this.client.login(process.env.DISCORD_BOT_API_TOKEN);
+    }
   }
 
   async getUserDiscordIdFromUAApi(place: string): Promise<string> {
@@ -37,15 +72,18 @@ export class AppService {
     )
       return;
 
-    await this.client.login(process.env.DISCORD_BOT_API_TOKEN);
+    await this.setupClientIfNotAlready();
 
     const discordId = await this.getUserDiscordIdFromUAApi(place);
+    if (this.mutedDiscordIds.includes(discordId)) return;
 
     if (!discordId) return;
 
     const user = await this.client.users.fetch(discordId);
 
-    await user.send("Ta commande à la cantine de l'UA est prête !");
+    await user.send(
+      `Ta commande à la cantine de l'UA est prête ! (tapez "!mute" pour ne plus recevoir de messages`,
+    );
 
     return;
   }
