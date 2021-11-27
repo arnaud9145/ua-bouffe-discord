@@ -32,4 +32,4 @@ COPY --from=builder /srv/node_modules ./node_modules
 
 EXPOSE 3000
 
-CMD yarn start:prod
+ENTRYPOINT [ "yarn", "start:prod" ]
