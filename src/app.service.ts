@@ -23,13 +23,18 @@ export class AppService {
     return data.users[0].discordId;
   }
 
-  async sendMessage({status, place, orderItems}:SendMessageToDiscordBody): Promise<void> {
+  async sendMessage({
+    order: { status, place, orderItems },
+  }: SendMessageToDiscordBody): Promise<void> {
     // ATM, only send message when order is 'ready'
     if (status !== 'ready') return;
 
     // Send message if one of ordered item needs preperation
     // For example, soda can does not need preparation. Pizza does.
-    if (!orderItems.some(orderItem => orderItem.item.category.needsPreparation)) return;
+    if (
+      !orderItems.some((orderItem) => orderItem.item.category.needsPreparation)
+    )
+      return;
 
     await this.client.login(process.env.DISCORD_BOT_API_TOKEN);
 

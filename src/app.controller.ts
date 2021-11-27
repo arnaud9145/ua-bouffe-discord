@@ -1,22 +1,29 @@
-import { UnauthorizedException, Controller, Post, Get, Body } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  Controller,
+  Post,
+  Get,
+  Body,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { Headers } from '@nestjs/common';
-import {} from 'discord.js';
 
 interface Headers {
-  Authorization: string;
+  authorization: string;
 }
 interface OrderItem {
   item: {
     category: {
       needsPreparation: boolean;
-    }
-  }
+    };
+  };
 }
 export interface SendMessageToDiscordBody {
-  status: 'ready' | 'pending' | 'preparing' | 'finished';
-  place: string;
-  orderItems: OrderItem[];
+  order: {
+    status: 'ready' | 'pending' | 'preparing' | 'finished';
+    place: string;
+    orderItems: OrderItem[];
+  };
 }
 
 @Controller()
@@ -31,13 +38,15 @@ export class AppController {
   @Post('sendMessageToDiscord')
   async sendMessageToDiscord(
     @Body() body: SendMessageToDiscordBody,
-    @Headers() headers: Headers
-  ): Promise<string> {
-    if ((headers?.Authorization || '').split('Bearer ')[1] !== process.env.PRIVATE_KEY) {
+    @Headers() headers: Headers,
+  ): Promise<void> {
+    if (
+      (headers?.authorization || '').split('Bearer ')[1] !==
+      process.env.PRIVATE_KEY
+    ) {
       throw new UnauthorizedException('No private key provided');
     }
 
     await this.appService.sendMessage(body);
-    return body.place;
   }
 }
