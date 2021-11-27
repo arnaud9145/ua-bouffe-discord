@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Client, Intents } from 'discord.js';
 import axios from 'axios';
+import { SendMessageToDiscordBody } from './app.controller';
+
 @Injectable()
 export class AppService {
   private client = new Client({ intents: [Intents.FLAGS.DIRECT_MESSAGES] });
@@ -21,7 +23,14 @@ export class AppService {
     return data.users[0].discordId;
   }
 
-  async sendMessage(place: string): Promise<void> {
+  async sendMessage({status, place, orderItems}:SendMessageToDiscordBody): Promise<void> {
+    // ATM, only send message when order is 'ready'
+    if (status !== 'ready') return;
+
+    // Send message if one of ordered item needs preperation
+    // For example, soda can does not need preparation. Pizza does.
+    if (!orderItems.some(orderItem => orderItem.item.category.needsPreparation)) return;
+
     await this.client.login(process.env.DISCORD_BOT_API_TOKEN);
 
     const discordId = await this.getUserDiscordIdFromUAApi(place);
