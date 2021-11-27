@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM node:16 as builder
 
 WORKDIR /srv
 
@@ -18,7 +18,7 @@ RUN yarn build
 
 ##############################################
 
-FROM node:16-alpine
+FROM node:16
 
 WORKDIR /srv
 
