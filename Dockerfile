@@ -22,7 +22,7 @@ FROM node:16
 
 WORKDIR /srv
 
-RUN apk add --no-cache tini
+RUN apt install --no-cache tini
 
 COPY tsconfig.json 			./tsconfig.json
 COPY tsconfig.build.json 	./tsconfig.build.json
