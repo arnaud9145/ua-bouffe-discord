@@ -28,6 +28,7 @@ export class AppService {
   }: SendMessageToDiscordBody): Promise<void> {
     // ATM, only send message when order is 'ready'
     if (status !== 'ready') return;
+    if (place[0] === 'Z') return;
 
     // Send message if one of ordered item needs preperation
     // For example, soda can does not need preparation. Pizza does.
