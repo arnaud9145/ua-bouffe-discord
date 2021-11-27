@@ -22,8 +22,6 @@ FROM node:16
 
 WORKDIR /srv
 
-RUN apt install --no-cache tini
-
 COPY tsconfig.json 			./tsconfig.json
 COPY tsconfig.build.json 	./tsconfig.build.json
 
@@ -33,7 +31,5 @@ COPY --from=builder   /srv/dist 		./dist
 COPY --from=builder /srv/node_modules ./node_modules
 
 EXPOSE 3000
-
-ENTRYPOINT [ "/sbin/tini", "--" ]
 
 CMD yarn start:prod
